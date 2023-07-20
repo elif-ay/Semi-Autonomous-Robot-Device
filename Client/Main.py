@@ -89,7 +89,7 @@ class MyWindow(QMainWindow,Ui_client):
         self.drawpoint=[585,135]
         self.initial=True
         
-        self.stream_url = "http://192.168.43.209:8090"
+        self.stream_url = "http://192.168.137.237:8090"
         self.cap = cv2.VideoCapture(self.stream_url)
     
         # Load the YOLOv5 model
