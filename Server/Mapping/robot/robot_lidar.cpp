@@ -42,12 +42,13 @@ bool sortcol(const std::vector<double>& v1, const std::vector<double>& v2)
 }
 int main(int argc, char *argv[])
 {
+	  int remote_port = 8255;
+
   // Register the signal handler for SIGPIPE
   signal(SIGPIPE, sigpipeHandler);
   signal(SIGINT, sigpipeHandler);
   signal(SIGTSTP, sigpipeHandler);
 
-  int remote_port = 8255;
 
   // Set lidar usb port
   std::string port;
