@@ -22,9 +22,8 @@ class DataReceiverThread(QThread):
         self.robot_x = robot_x
         self.robot_y = robot_y
         self.robot_angle = robot_angle
-        self.ipAddress = "192.168.43.209"
-        self.remote_port = 8255
-        print("girdi3")
+        self.ipAddress = "192.168.137.237"
+        self.remote_port = 8066
 
     def run(self):
         # Open socket
@@ -108,7 +107,6 @@ class MapWidget(QWidget):
 
     def __init__(self,points,robot_x,robot_y,robot_angle , clicked_coordinate_label):
         super().__init__()
-        print("girdi2")
         self.points = points
         self.robot_x = robot_x
         self.robot_y = robot_y
@@ -138,8 +136,8 @@ class MapWidget(QWidget):
 
         # Robotu çiz
         painter.setPen(QPen(Qt.green, self.zoom / 10))
-        print("robot x : " , robotX)
-        print("robot_y : " , robotY)
+        #print("robot x : " , robotX)
+        #print("robot_y : " , robotY)
         painter.drawPoint(QPoint(int((robotX * self.zoom) + self.camera_x), int((robotY * self.zoom) + self.camera_y)))
         
         painter.end()
