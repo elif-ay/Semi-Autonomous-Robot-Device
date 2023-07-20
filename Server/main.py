@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from Server import *
 import os
-#import threading
 import subprocess
 
 class MyWindow(QMainWindow,Ui_server):
@@ -25,8 +24,6 @@ class MyWindow(QMainWindow,Ui_server):
         if self.start_tcp:
             self.server.turn_on_server()
             self.server.tcp_flag=True
-            #self.video=threading.Thread(target=self.server.transmission_video)
-            #self.video.start()
             self.instruction=threading.Thread(target=self.server.receive_instruction)
             self.instruction.start()
             
@@ -49,18 +46,13 @@ class MyWindow(QMainWindow,Ui_server):
             self.states.setText('On')
             self.server.turn_on_server()
             self.server.tcp_flag=True
-            #self.video=threading.Thread(target=self.server.run_raspivid)
-            #self.video.start()
-            #self.video.join()
             self.instruction=threading.Thread(target=self.server.receive_instruction)
             self.instruction.start()
-            #self.instruction.join()
         else:
             self.pushButton_On_And_Off.setText('On')
             self.states.setText('Off')
             self.server.tcp_flag=False
             try:
-                #stop_thread(self.video)
                 stop_thread(self.instruction)
             except Exception as e:
                 print(e)
@@ -68,7 +60,6 @@ class MyWindow(QMainWindow,Ui_server):
             print("close")
     def closeEvent(self,event):
         try:
-            #stop_thread(self.video)
             stop_thread(self.instruction)
         except:
             pass
@@ -88,20 +79,17 @@ if __name__ == '__main__':
     try:
         myshow=MyWindow()
         if myshow.user_ui==True:
+            #command = "raspivid -o - -t 0 -n -w 640 -h 480 -fps 30 -b 1000000 -fl | cvlc -vvv stream:///dev/stdin --sout '#standard{access=http,mux=ts,dst=:8090}' :demux=h264"
+            #detect=threading.Thread(run_os(command)).start()
+            #os.system(command)
+            #subprocess.run(["python3","/home/grup3/oto_robot/Code/Server/raspicam.py"])
+            #time.sleep(10)
             myshow.show();  
 
             #result = subprocess.run(["./Mapping/robot/build/robot_lidar"], shell=True, capture_output=True, text=True)
 
-            #print("robot_lidar process output")
-            #print(result)
-            #makeCom=threading.Thread(run_os("cd/Mapping/robot/build&&make")).start()
-            command = "raspivid -o - -t 0 -n -w 640 -h 480 -fps 30 -b 1000000 -fl | cvlc -vvv stream:///dev/stdin --sout '#standard{access=http,mux=ts,dst=:8090}' :demux=h264"
             lidar=threading.Thread(run_os("./Mapping/robot/build/robot_lidar")).start()
-            detect=threading.Thread(run_os(command)).start()
-            #lidar.join()
             #returned_value = subprocess.call("./Mapping/robot/build/robot_lidar", shell=True)
-            #os.system("./Mapping/robot/build/robot_lidar") 
-            #run_command("./Mapping/robot/build/robot_lidar")
             sys.exit(myshow.app.exec_())
             os._exit(0)
 

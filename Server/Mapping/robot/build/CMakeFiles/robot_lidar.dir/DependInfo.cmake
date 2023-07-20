@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/grup3/Freenove_Robot_Dog_Kit_for_Raspberry_Pi/Code/Server/Mapping/robot/robot_lidar.cpp" "/home/grup3/Freenove_Robot_Dog_Kit_for_Raspberry_Pi/Code/Server/Mapping/robot/build/CMakeFiles/robot_lidar.dir/robot_lidar.cpp.o"
+  "/home/grup3/oto_robot/Code/Server/Mapping/robot/robot_lidar.cpp" "/home/grup3/oto_robot/Code/Server/Mapping/robot/build/CMakeFiles/robot_lidar.dir/robot_lidar.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

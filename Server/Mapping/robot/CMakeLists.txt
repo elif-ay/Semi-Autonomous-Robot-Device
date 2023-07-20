@@ -25,4 +25,4 @@ link_directories(${YDLIDAR_SDK_LIBRARY_DIRS})
 add_executable(robot_lidar robot_lidar.cpp)
 
 # Link ydlidar_sdk and SFML libraries
-target_link_libraries(robot_lidar ${YDLIDAR_SDK_LIBRARIES})
+target_link_libraries(robot_lidar ${YDLIDAR_SDK_LIBRARIES} )

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/grup3/Freenove_Robot_Dog_Kit_for_Raspberry_Pi/Code/Server/Mapping/robot -I/usr/local/include/src
+CXX_INCLUDES = -I/home/grup3/oto_robot/Code/Server/Mapping/robot -I/usr/local/include/src
 
 CXX_FLAGS =  -std=c++14   -std=c++14
 

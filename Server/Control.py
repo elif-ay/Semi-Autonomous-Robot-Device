@@ -16,7 +16,7 @@ class Control:
         self.servo=Servo()
         self.sonic = Ultrasonic()
         self.pid = Incremental_PID(0.5,0.0,0.0025)
-        self.speed = 8
+        self.speed = 2
         self.height = 99
         self.timeout = 0
         self.move_flag = 0
@@ -25,6 +25,7 @@ class Control:
         self.flag=1
         self.x = 0.0
         self.y = 0.0
+        self.robot_angle= 0.0
         
         self.order = ['','','','','']
         self.point = [[0, 99, 10], [0, 99, 10], [0, 99, -10], [0, 99, -10]]
@@ -37,6 +38,8 @@ class Control:
         self.Thread_conditiona=threading.Thread(target=self.condition)
         self.calibration()
         self.relax(True)
+        self.writeRobotCoordinate()
+        
     def readFromTxt(self,filename):
         file1 = open(filename + ".txt", "r")
         list_row = file1.readlines()
@@ -120,7 +123,7 @@ class Control:
             except Exception as e:
                 pass
         else:
-            print("This coordinate point is out of the active range")
+            print("The coordinates invalid")
     def checkPoint(self):
         flag=True
         leg_lenght=[0,0,0,0,0,0]  
@@ -250,6 +253,7 @@ class Control:
             return var            
     def map(self,value,fromLow,fromHigh,toLow,toHigh):
         return (toHigh-toLow)*(value-fromLow) / (fromHigh-fromLow) + toLow
+        
     def changeCoordinates(self,move_order,X1=0,Y1=96,Z1=0,X2=0,Y2=96,Z2=0,pos=np.mat(np.zeros((3, 4)))):
         if move_order == 'turnLeft':  
             for i in range(2):
@@ -301,10 +305,11 @@ class Control:
             if Y1 > self.height:
                 Y1=self.height
             self.changeCoordinates('backWard',X1,Y1,0,X2,Y2,0)
-            #time.sleep(0.01)
-    def writeRobotCoordinate(self,x,y):
-        file4 = open("./Mapping/robot/build/robot_location.txt","w")
-        file4.write(str(x) + "," + str(y))
+            self.y = float(self.y) -0.01  
+            self.writeRobotCoordinate()
+    def writeRobotCoordinate(self):
+        file4 = open("./Mapping/robot/build/robot_location.txt","w+")
+        file4.write(str(self.x) + "," + str(self.y) + ","+ str(self.robot_angle))
         file4.close() 
         
     def forWard(self):
@@ -318,66 +323,52 @@ class Control:
             if Y1 > self.height:
                 Y1=self.height
             self.changeCoordinates('forWard',X1,Y1,0,X2,Y2,0)
-        self.y = float(self.y)+0.1
-        self.writeRobotCoordinate(self.x,self.y)
-            #time.sleep(0.01)
-    """
+            
+        self.y = float(self.y) +0.001  
+        self.writeRobotCoordinate()
+    
     def oto(self):
-        print("girdi")
         counter=2
         while True:
             distance = self.sonic.getDistance()
-            print("distance:",distance)
-            if (distance <8 and distance>0):
-                break
-            elif distance < 20 and distance > 8:
-                while( distance<20 and distance >0):
-                    self.turnRight()
-                    self.turnRight()
-                    distance=self.sonic.getDistance()
-                    print(distance)
+            if (distance <5 and distance>0):
+                print("The Obstacle is too close!! Exiting..." , str(distance))
 
-            else:
-                if(counter%9==0) :
-                    self.turnRight()
-                    counter+=1
-                else:
-                    self.forWard()
-                    counter+=1
-                    
-        print("cikti")
-    """      
-    def oto(self):
-        counter=2
-        while True:
-            distance = self.sonic.getDistance()
-            if (distance <8 and distance>0):
                 break
-            elif distance < 20 and distance > 8:
-                print("geldim")
+            elif ((distance < 35 and distance > 5) or distance ==0):
                 
                 with open('./Mapping/robot/build/lidardata.txt',"r") as f:
                     lines = f.readlines()
                     longest=lines[0]
-                    
-                #assume left side of robot is 30 to 90, right side is 90 to 150
-                #longest[0] is the farest point distance, [1] is angle.
-                print( "***" +longest)
+
                 if(float(longest) >0.0):
+                    self.setpRight()
                     gap = 180-float(longest)
-                    stepCount=gap/10+1
+                    stepCount=gap/10 +2
+                    print("STEP: " , stepCount)
                     while(stepCount>0):
                         self.turnRight()
                         stepCount -=1
+                    self.forWard() 
+                    self.forWard()
+                    counter=1
+                      
                 #turn left operation        
                 else:  
+                    self.setpLeft()
+
                     gap = 180+float(longest)
-                    stepCount=gap/10 +1
+                    stepCount=gap/10 +2
+                    print("STEP: " , stepCount)
                     while(stepCount>0):
                         self.turnLeft()
-                        stepCount -=1   
+                        stepCount -=1 
+                    self.forWard()
+                    self.forWard()
+                    counter=1
+                        
             else:
-                if(counter%6==0) :
+                if(counter%8==0) :
                     self.turnRight()
                     counter+=1
                 else:
@@ -408,10 +399,16 @@ class Control:
             Z1=X1
             Z2=X2
             self.changeCoordinates('turnLeft',X1,Y1,Z1,X2,Y2,Z2)
-            #time.sleep(0.01)
+            
+            
+        self.robot_angle = float(self.robot_angle) +7
+        if(self.robot_angle >=360):
+            self.robot_angle = self.robot_angle-360
+            
+        self.writeRobotCoordinate()
     
     def turnRight(self):
-         for i in range(0,361,self.speed):
+        for i in range(0,361,self.speed):
             X1=3*math.cos(i*math.pi/180)
             Y1=8*math.sin(i*math.pi/180)+self.height
             X2=3*math.cos((i+180)*math.pi/180)
@@ -423,7 +420,11 @@ class Control:
             Z1=X1
             Z2=X2
             self.changeCoordinates('turnRight',X1,Y1,Z1,X2,Y2,Z2)  
-            #time.sleep(0.01)
+            
+        self.robot_angle = float(self.robot_angle) -7
+        if(self.robot_angle <= -360):
+            self.robot_angle = self.robot_angle+360
+        self.writeRobotCoordinate()
     def stop(self):
         p=[[10, self.height, 10], [10, self.height, 10], [10, self.height, -10], [10, self.height, -10]]
         for i in range(4):
@@ -447,7 +448,6 @@ class Control:
             if Y2 > self.height:
                 Y2=self.height
             self.changeCoordinates('setpLeft',0,Y1,Z1,0,Y2,Z2)
-            #time.sleep(0.01)
     def setpRight(self):
         for i in range(450,89,-self.speed):
             Z1=10*math.cos(i*math.pi/180)
@@ -459,7 +459,6 @@ class Control:
             if Y2 > self.height:
                 Y2=self.height
             self.changeCoordinates('setpRight',0,Y1,Z1,0,Y2,Z2)
-            #time.sleep(0.01)
     def relax(self,flag=False):
         if flag==True:
             p=[[55, 78, 0], [55, 78, 0], [55, 78, 0], [55, 78, 0]]
